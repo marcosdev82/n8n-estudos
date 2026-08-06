@@ -1,0 +1,277 @@
+{
+  "name": "ETL",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        96
+      ],
+      "id": "503ee6a1-9d58-4c36-a0a9-5d530d0b1fdd",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "nOrvF2SbsMuwt57x",
+          "mode": "list",
+          "cachedResultName": "Load",
+          "cachedResultUrl": "/projects/JrihdKUKYhs5PbJ5/datatables/nOrvF2SbsMuwt57x"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        224,
+        96
+      ],
+      "id": "b30b8f8d-1263-4f55-a22b-261aa3a62e9a",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "max",
+              "field": "value"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        96
+      ],
+      "id": "3966def6-54c5-48ec-8d0c-593daa0b977b",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT max(id_vendas) as max_id_vendas FROM vendas;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        672,
+        96
+      ],
+      "id": "131899ac-a2e7-4e6c-bd5f-8e36dc30a650",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  id_vendas,\n  id_veiculos,\n  id_concessionarias,\n  id_vendedores,\n  id_clientes,\n  valor_pago,\n  data_venda\nFROM VENDAS \n  WHERE id_vendas > {{ $('Get row(s)').item.json.value }} \n  and id_vendas <=  {{ $json.max_id_vendas }}\nORDER BY ID_VENDAS",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        896,
+        0
+      ],
+      "id": "569c79ba-dbb0-4521-ae56-8e6a767812bd",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "500047d7-68aa-4c78-a6d7-3a055f5bfe2c",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/data/etl/vendas_{{ $now }}_.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "b15d1411-985e-4a3e-989b-2b621192c666",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "nOrvF2SbsMuwt57x",
+          "mode": "list",
+          "cachedResultName": "Load",
+          "cachedResultUrl": "/projects/JrihdKUKYhs5PbJ5/datatables/nOrvF2SbsMuwt57x"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "1"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "value": "={{ $json.max_id_vendas }}"
+          },
+          "matchingColumns": [
+            "value"
+          ],
+          "schema": [
+            {
+              "id": "value",
+              "displayName": "value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        896,
+        192
+      ],
+      "id": "99658527-42be-4921-bc62-0fae9a49f9e9",
+      "name": "Update row(s)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0932ca3c-eef3-4808-9186-680d5278f937",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "l5DWnkwNEdR5r00N",
+  "tags": []
+}

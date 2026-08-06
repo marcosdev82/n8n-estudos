@@ -1,0 +1,148 @@
+{
+  "name": "LLMAutomacao",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d0d9e6e4-d0f4-4f93-a289-659eb0414b1a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    v.nome AS veiculo,\n    c.concessionaria,\n    e.estado,\n    e.sigla,\n    COUNT(*) AS total_vendas,\n    SUM(vd.valor_pago) AS valor_total,\n    AVG(vd.valor_pago) AS ticket_medio,\n    MAX(vd.data_venda) AS ultima_venda\nFROM vendas vd\nJOIN veiculos v \n    ON vd.id_veiculos = v.id_veiculos\nJOIN concessionarias c \n    ON vd.id_concessionarias = c.id_concessionarias\nJOIN cidades ci\n    ON c.id_cidades = ci.id_cidades\nJOIN estados e\n    ON ci.id_estados = e.id_estados\nWHERE vd.data_venda >= NOW() - INTERVAL '30 days'\nGROUP BY v.nome, c.concessionaria, e.estado, e.sigla\nORDER BY valor_total DESC;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d3dd4fcf-e70c-4685-9c61-779ae0974169",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-4-TURBO"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Analise os seguintes dados de vendas dos últimos 30 dias:\n\n{{ JSON.stringify($json.data,null,2) }}\n\nForneça uma análise clara e objetiva em texto simples, não seu HTML ou Markdown.\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "25ee794d-ef17-4c23-8f09-c765be81ed9a",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "21eDY7Es2GT8M05W",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "analise@example.com",
+        "toEmail": "usuario@example.com",
+        "subject": "Análise de Vendas",
+        "emailFormat": "text",
+        "text": "={{ $json.output[0].content[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "76132f82-448f-41d4-a8b5-371ac0311309",
+      "name": "Send email",
+      "webhookId": "a0d6168e-6913-42fe-8b32-b869a2cccab5",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "367d3be2-f6ae-4346-a563-aa78a75ebf80",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "55w4CS0TcnWYaZFW",
+  "tags": []
+}

@@ -1,0 +1,117 @@
+{
+  "name": "Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7aba110a-0e60-40ce-827a-08fe0dc7a992",
+      "name": "Webhook",
+      "webhookId": "b9217593-7d9a-474c-913d-02647d3dfebb"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eb2882cb-244c-418f-810e-a6a28d6d291c",
+              "name": "Information",
+              "value": "=Name: {{ $json.query.name }}, Age: {{ $json.query.Age }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a2e4c261-f707-4695-b839-5676ad3e119d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "754ca263-61ac-4241-aa9c-122a9cdf14bb",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/data/webhook.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "ec7bb763-4191-4f0b-a1ca-569ee854ce51",
+      "name": "Read/Write Files from Disk"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "207258ac-4f4a-4bbc-9e8e-26eab528200e",
+  "meta": {
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "31HpqiRorAaoWJN9",
+  "tags": []
+}

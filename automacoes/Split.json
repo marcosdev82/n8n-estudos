@@ -1,0 +1,156 @@
+{
+  "name": "Split",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cedfd6d4-f305-42ff-ad6a-2b6269f508a4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"ceps\" : [\n    {\"cep\":\"01001-000\"},\n    {\"cep\":\"01310-200\"},\n    {\"cep\":\"20040-020\"},\n    {\"cep\":\"30110-012\"},\n    {\"cep\":\"40015-060\"},\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7e291dba-7c90-4516-9066-0baba5c040f6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "ceps",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "178643ed-6cbe-4bbb-9a03-4dc95d9fb1c9",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "=https://viacep.com.br/ws/{{ $json.cep }}/json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "31bd7eab-e722-4200-b2f4-db02094aa2b4",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        0
+      ],
+      "id": "e04c6400-db31-41fa-a032-ff00c2308a9d",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/data/ceps.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "c32346ac-9823-4377-b95e-ea4199948e23",
+      "name": "Read/Write Files from Disk"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4fcfadda-8bae-461b-82b4-d796a612589b",
+  "meta": {
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "PdMWSwNFk6uA6rRw",
+  "tags": []
+}

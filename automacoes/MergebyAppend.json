@@ -1,0 +1,186 @@
+{
+  "name": "MergebyAppend",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4d4dfe0f-c9a1-4e1f-a8fb-9f18fe1f5c49",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/data/merge2.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0bd6bec2-cfa3-47d7-ab8d-86364d94ccb9",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {
+          "sheetName": "pedidos"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        128
+      ],
+      "id": "c3a9d9ba-da5f-4d13-8a47-2f0a1a75c91b",
+      "name": "ExtractPedidos"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {
+          "sheetName": "clientes"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        -128
+      ],
+      "id": "7de908cd-6688-4e68-bf81-2093093bf8ac",
+      "name": "ExtractClientes"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        688,
+        16
+      ],
+      "id": "4c356ec3-e11f-41df-aba3-f716a5f2ccf5",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        16
+      ],
+      "id": "32c07da4-f26e-4a96-83b9-37b06ff61fc4",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/data/merge_append.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        16
+      ],
+      "id": "bbe48d02-d9bf-40e4-b8b2-6fdd314fcf85",
+      "name": "Read/Write Files from Disk1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "ExtractClientes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ExtractPedidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ExtractClientes": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ExtractPedidos": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a4292969-8fe9-4eae-8c59-3578c6618975",
+  "meta": {
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "Eh7lmfMHc8FS85ub",
+  "tags": []
+}

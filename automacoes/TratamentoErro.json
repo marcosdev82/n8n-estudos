@@ -1,0 +1,168 @@
+{
+  "name": "TratamentoErro",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "040f595f-23f3-4acb-a00f-1db0a296b5b5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://httpbin.org/status/200",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "62948117-2804-4453-bbd7-6318aec8e64a",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "21600169-4cb2-4bc3-87f2-91da7520c8ff",
+              "leftValue": "={{ $json.error.status }}",
+              "rightValue": "500",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "6c6d6a77-925a-4b3f-8002-d476b6ea64c3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "fromEmail": "sistema@example.com",
+        "toEmail": "suporte@example.com",
+        "subject": "Erro",
+        "html": "Ocorreu um erro no processamento",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "ee60ae1c-e3a7-4f6e-949f-d896d7176f29",
+      "name": "EmaiErro",
+      "webhookId": "95181a10-099d-402f-80c7-98db1fdc825e",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "sistema@example.com",
+        "toEmail": "suporte@example.com",
+        "subject": "Sucesso",
+        "html": "O processamento foi executado com sucesso",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        112
+      ],
+      "id": "4fe08af5-fe1a-4fd2-8e5f-caa389c14cdf",
+      "name": "EmailSucesso",
+      "webhookId": "95181a10-099d-402f-80c7-98db1fdc825e",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "EmaiErro",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EmailSucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "94d05e5a-43ed-42e4-9ed1-648bd56c40ca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "vGkyd98G6uVfAzvT",
+  "tags": []
+}

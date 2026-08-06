@@ -1,0 +1,93 @@
+{
+  "name": "APIRest",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "consulta",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0881a805-ce10-4e15-add8-b8fc87eb5ada",
+      "name": "Webhook",
+      "webhookId": "37740109-e649-4ccb-bb88-e7f7c5407048"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    v.nome AS veiculo,\n    e.sigla AS estado,\n    SUM(ven.valor_pago) AS total_vendas\nFROM \n    vendas ven\nJOIN \n    veiculos v ON v.id_veiculos = ven.id_veiculos\nJOIN \n    concessionarias c ON c.id_concessionarias = ven.id_concessionarias\nJOIN \n    cidades ci ON ci.id_cidades = c.id_cidades\nJOIN \n    estados e ON e.id_estados = ci.id_estados\nWHERE \n    e.sigla = UPPER('{{ $json.query.estado }}')\nGROUP BY \n    v.nome, e.sigla\nORDER BY \n    total_vendas DESC;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "42981402-3fff-4c93-b039-d1306f52f719",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { \"resultados\":$input.all().map(i=>i.json)} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "03c05277-dc94-48dc-ac24-fb82c912ff0e",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5cf207b4-1418-4025-90f1-696bcd7532f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "2iapth642QivQI2L",
+  "tags": []
+}

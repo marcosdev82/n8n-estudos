@@ -1,0 +1,135 @@
+{
+  "name": "MCPVendas",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "8c3b4134-60d9-4f95-9201-02d1131cc0f2"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -208
+      ],
+      "id": "6c15bdea-be97-49fc-adf5-696c3e2c8d50",
+      "name": "MCP Server Trigger",
+      "webhookId": "8c3b4134-60d9-4f95-9201-02d1131cc0f2"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retorna o total de vendas e o faturamento agrupados por estado.\nÚtil para identificar quais estados vendem mais e comparar desempenho regional.\nOs valores consideram todo o histórico disponível no banco de dados.",
+        "operation": "executeQuery",
+        "query": "SELECT\n  e.sigla AS state,\n  e.estado AS state_name,\n  COUNT(*)::int AS total_sales,\n  COALESCE(SUM(v.valor_pago),0)::numeric(12,2) AS total_revenue\nFROM vendas v\nJOIN concessionarias c ON c.id_concessionarias = v.id_concessionarias\nJOIN cidades ci ON ci.id_cidades = c.id_cidades\nJOIN estados e ON e.id_estados = ci.id_estados\nGROUP BY e.sigla, e.estado\nORDER BY total_revenue DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        32,
+        -16
+      ],
+      "id": "1eb2c5df-5963-4703-993f-7251d5f7ecff",
+      "name": "getSalesbyState",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retorna o ranking dos veiículos mais vendidos, ordenados pela quantidade de vendas.\nÚtil para identificar os modelos com maior volume de vendas.\nOs valores consideram todo o histórico disponível no banco de dados.",
+        "operation": "executeQuery",
+        "query": "SELECT\n  ve.nome AS vehicle,\n  ve.tipo AS type,\n  COUNT(*)::int AS total_sales,\n  COALESCE(SUM(v.valor_pago),0)::numeric(12,2) AS total_revenue\nFROM vendas v\nJOIN veiculos ve ON ve.id_veiculos = v.id_veiculos\nGROUP BY ve.nome, ve.tipo\nORDER BY total_sales DESC\nLIMIT 5;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        400,
+        -48
+      ],
+      "id": "c3375335-5e3b-4027-9aa7-64752c7efcd4",
+      "name": "getTopVehicles",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retorna um resumo geral das vendas, incluindo:\n- Total de vendas realizadas\n-Faturamento total\n- Ticket médio\nOs valores consideram todo o período histórico disponível no banco de dados",
+        "operation": "executeQuery",
+        "query": "SELECT\n  COUNT(*)::int AS total_sales,\n  COALESCE(SUM(valor_pago),0)::numeric(12,2) AS total_revenue,\n  COALESCE(AVG(valor_pago),0)::numeric(12,2) AS avg_ticket\nFROM vendas;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        144
+      ],
+      "id": "345b96f4-a76f-4f11-af28-8c8325af51fc",
+      "name": "getSalesSummary",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "getSalesbyState": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getTopVehicles": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getSalesSummary": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "048b1e78-3d47-4f14-b365-f2ea9373e001",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "Zi8JnCi6l5NaZ7Wf",
+  "tags": []
+}

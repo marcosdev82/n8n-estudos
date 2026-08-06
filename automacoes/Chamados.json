@@ -1,0 +1,278 @@
+{
+  "name": "Chamados",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Chamados",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nome",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Descrição",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Prioridade",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Crítica"
+                  },
+                  {
+                    "option": "Alta"
+                  },
+                  {
+                    "option": "Média"
+                  },
+                  {
+                    "option": "Baixa"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "6c3e098b-57f9-41a7-be71-06f4923f1fef",
+      "name": "On form submission",
+      "webhookId": "c264910e-c762-4a3b-87d5-47ff9e66b651"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "08db5c94-aa3f-4f39-be6d-9ced6f750a2e",
+              "leftValue": "={{ $json.Prioridade }}",
+              "rightValue": "Crítica",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        -176
+      ],
+      "id": "9ab986e1-3bd8-4a4a-bfb8-5348408a18de",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -80
+      ],
+      "id": "4bed8f12-e08d-4d84-b5bc-22bff223c982",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Você é um classificador de chamados de TI.\nClassifique o chamado em UMA das seguintes categorias:\n- Hardware\n- Internet\n- Sistemas\n- Acessos\n- Dados\n- Outros\nRegras:\n- Responda Apenas com o nome exato da categoria.\n- Não explique sua resposta.\n- Não use aspas.\n- Não invente categorias.\nChamado:\n{{ $json['Descrição'] }}\n\n\n\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        224,
+        112
+      ],
+      "id": "5bdd1999-abd5-4302-80fc-93acd375dd26",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "21eDY7Es2GT8M05W",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "xSH7cH7U97KrCQzv",
+          "mode": "list",
+          "cachedResultName": "chamados",
+          "cachedResultUrl": "/projects/JrihdKUKYhs5PbJ5/datatables/xSH7cH7U97KrCQzv"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "descricao": "={{ $('On form submission').item.json['Descrição'] }}",
+            "prioridade": "={{ $('On form submission').item.json.Prioridade }}",
+            "classificacao": "={{ $json.output[0].content[0].text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "descricao",
+              "displayName": "descricao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prioridade",
+              "displayName": "prioridade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "classificacao",
+              "displayName": "classificacao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        576,
+        112
+      ],
+      "id": "55bccfaa-fb7a-45dc-9419-f3daa76f167d",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ybC791Iiszwvz3ab",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ybC791Iiszwvz3ab",
+          "cachedResultName": "ChamadosUrgentes"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        576,
+        -272
+      ],
+      "id": "4ed74a2a-5d3c-4cdc-bc62-61272aadbbd3",
+      "name": "Call 'ChamadosUrgentes'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Call 'ChamadosUrgentes'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "96a59748-b54b-45d4-9918-790fd033609f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "cP6jwTNLnksWCf2Z",
+  "tags": []
+}

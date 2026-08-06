@@ -1,0 +1,224 @@
+{
+  "name": "HumanLoop",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Empréstimo",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "nome",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "valor",
+              "fieldType": "number",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0ea12c24-39f8-418d-b1f7-1df21f8e04cb",
+      "name": "On form submission",
+      "webhookId": "b4fd4d7b-bb9c-40c7-8820-70ded5e3963d"
+    },
+    {
+      "parameters": {
+        "fromEmail": "aprovacao@emprestimo.com",
+        "toEmail": "aprovador@emprestimo.com",
+        "subject": "Solicitação de Empréstimo",
+        "html": "=Olá, um novo empréstimo precisa ser aprovado.\n</br>\nSolicitante:  {{ $json.nome }}\n</br>\nEmail: {{ $json.email }}\n</br>\nValor: {{ $json.valor }}\n</br>\nAprovar:\n</br>\n{{ $execution.resumeUrl }}?action=approved\n</br>\nRejeitar:\n</br>\n{{ $execution.resumeUrl }}?action=rejected",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5767aa36-cd90-426c-87fe-481b756c814a",
+      "name": "Send email",
+      "webhookId": "524c8132-4e40-4bcc-b12d-6662a80fc883",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f695fe83-207c-4840-88a8-b996f5d08100",
+      "name": "Wait",
+      "webhookId": "2006fd60-e77b-435e-a708-5bf54a1ea65d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "51dd135b-55c0-44cb-bd27-6273e117aa89",
+              "leftValue": "={{ $json.query.action }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "a16f20b1-4374-4944-a219-a87bffeb6a16",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "fromEmail": "=emprestimo@example.com",
+        "toEmail": "={{ $('On form submission').item.json.email }}",
+        "subject": "Empréstimo Aprovado",
+        "html": "=Olá  {{ $('On form submission').item.json.nome }} </br>\nSeu empréstimo de {{ $('On form submission').item.json.valor }} foi aprovado",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "cd2b7ce5-0b92-4a64-bd64-a58f3fd4c68d",
+      "name": "EmailAprovado",
+      "webhookId": "c11c5cb8-e593-4416-8736-68308fd9ed05",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "=emprestimo@example.com",
+        "toEmail": "={{ $('On form submission').item.json.email }}",
+        "subject": "Empréstimo Rejeitado",
+        "html": "=Olá  {{ $('On form submission').item.json.nome }} </br>\nSeu empréstimo de {{ $('On form submission').item.json.valor }} foi Rejeitado",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        832,
+        112
+      ],
+      "id": "4ebcb707-eabc-462f-820e-7b199a6892f1",
+      "name": "EmailRejeitado",
+      "webhookId": "c11c5cb8-e593-4416-8736-68308fd9ed05",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "EmailAprovado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EmailRejeitado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e0342277-f160-4b7c-95e0-8f577b14d69d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "l55QKmBTdNy14lqh",
+  "tags": []
+}

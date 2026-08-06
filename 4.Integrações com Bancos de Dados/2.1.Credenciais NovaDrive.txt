@@ -1,0 +1,5 @@
+host: 159.223.187.110
+database: novadrive
+user: etlreadonly
+password: novadrive376A@
+port: 5432

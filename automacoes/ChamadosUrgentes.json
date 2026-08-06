@@ -1,0 +1,68 @@
+{
+  "name": "ChamadosUrgentes",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "89fc7325-007a-43fc-bf34-d2af47bc7fce",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "fromEmail": "sistema@example.com",
+        "toEmail": "suporte@example.com",
+        "subject": "Chamado Crítico",
+        "emailFormat": "text",
+        "text": "=Chamado Crítico Recebido\nNome: {{ $json.Nome }}\nDescrição: {{  $json.Descrição }}\nData: {{  $json.submittedAt }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7dcb75b3-fcd7-487f-8d76-96fd82de27b2",
+      "name": "Send email",
+      "webhookId": "2ed2fef4-a8de-4c6b-817d-b8e172e3ab80",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e8fad6fe-df5a-4515-a40d-00fdec3dc00a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "ybC791Iiszwvz3ab",
+  "tags": []
+}

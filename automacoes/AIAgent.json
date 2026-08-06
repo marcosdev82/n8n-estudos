@@ -1,0 +1,171 @@
+{
+  "name": "AIAgent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Olá, como posso ajudar?",
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ab867776-655a-462c-a9ef-f577351638bb",
+      "name": "When chat message received",
+      "webhookId": "5f8a407c-353d-4726-ab74-9d39153ebb21"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Você é um agente pesquisador.\nSe (e somente se) o usuário fornecer uma URL, use a ferramenta HTTP Request com essa URL.\nCaso contrário, responda apenas com texto, sem usar ferramentas.\nSempre finalize a resposta em português em texto simples.\nApos usar qualquer ferramenta, gere imediatamente a resposta final ao usuário.\nNão continue o raciocínio após responder."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5ff7c703-ee76-452a-8e7b-961eae949ac4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "63583bfe-8491-4c75-a1d5-aef86db1ade6",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "21eDY7Es2GT8M05W",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "e4aa44e9-94b7-43c1-b614-52d14be6f600",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "url": "={{ $fromAI('URL', '', 'string') || 'https://example.com' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        368,
+        208
+      ],
+      "id": "d532bc80-0212-4f7b-b4f0-3ea3212a5323",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output}}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "c29df4e2-03ce-4653-999a-046ce727810e",
+      "name": "Respond to Chat"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "44795c1d-1eae-450c-b91b-011e48d97e41",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "hcOWf5oU1AJm1mrs",
+  "tags": []
+}

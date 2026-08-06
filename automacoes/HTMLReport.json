@@ -1,0 +1,183 @@
+{
+  "name": "HTMLReport",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1e24bc17-7ace-4a87-a1c7-720d7935f37d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select nome, tipo, valor from veiculos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "11a4fe13-cbda-46be-9a56-c9404882ba4c",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "O89oFw9zePJTiH4z",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "0cbf3305-552c-4900-bae9-a9a8373759f9",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<h1> Relatório de Veículos</h1>\n<table border=\"1\" cellspacing=\"0\" cellpadding=\"6\" style=\"border-collpase:collapse;\n  width: 100%; font-family:Arial, sans-serif;\">\n<thead style=\"background: #f0f0f0;\">\n  <tr>\n    <th style=\"text-align:left;\">Nome</th>\n    <th style=\"text-align:left;\">Tipo</th>\n    <th style=\"text-align:left;\">Valor</th>    \n  </tr>\n</thead>\n</tbody>\n{{ $json.data.map(v => ` <tr>\n  <td>${v.nome}</td>\n  <td>${v.tipo}</td>\n  <td>${v.valor}</td>  \n</tr> \n  `).join(\"\")\n  }}\n</tbody>  \n</table>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "9a2188e7-3395-4560-80e4-2b8777adac92",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "html",
+        "options": {
+          "fileName": "report.html"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "bbddf01f-fbe2-462d-b824-98c9ffc94329",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "fromEmail": "report@example.com",
+        "toEmail": "user@example.com",
+        "subject": "Report",
+        "emailFormat": "text",
+        "text": "Relatório de Veículos Anexo",
+        "options": {
+          "attachments": "data"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "39fef3c9-7e0a-4161-b985-21f5630b152d",
+      "name": "Send email",
+      "webhookId": "d1c95e40-8d38-4fba-89ca-3e57d276a43b",
+      "credentials": {
+        "smtp": {
+          "id": "cDWnMTwcoCxhmjo9",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0d2f9ef9-4962-4e10-90df-237de11101ca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "LEJS67X1xmFeSDhZ",
+  "tags": []
+}

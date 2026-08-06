@@ -1,0 +1,171 @@
+{
+  "name": "AgenteMCPVendas",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Olá seja bem vindo!",
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        -240
+      ],
+      "id": "2b4eefff-f74c-4dd6-9bf4-481e62a83fb3",
+      "name": "When chat message received",
+      "webhookId": "1d9e5a97-8bab-455c-9f2a-7fe71ed39a3f"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Você é um analista de vendas.\nUse as ferramentas disponíveis para responder perguntas sobre desempenho de vendas.\nEscolha sempre a ferramenta mais adequada para responder a pergunta.\nNão invente dados fora do que as ferramentas retornarem.\nSempre utilize uma ferramenta para responder perguntas de vendas."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        280,
+        -240
+      ],
+      "id": "5594e3d8-2e82-40b3-a74a-d56bd282bb01",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "a53b9d24-adb9-470c-abe9-14dd92bb5139",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "21eDY7Es2GT8M05W",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "d0901ea1-8ddd-4df5-b1c4-d21ac4903d4b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -240
+      ],
+      "id": "9b08d44a-4b4b-40dc-91ca-af2092ba7741",
+      "name": "Respond to Chat"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:5678/mcp/8c3b4134-60d9-4f95-9201-02d1131cc0f2",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        -16
+      ],
+      "id": "a7e4ca69-27fb-46b9-9800-a89011d26f0c",
+      "name": "MCP Client"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ca62c2ff-d9db-43a8-9bc1-8a46643dddd3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7198192c17c641ce43c1e4119cd833bf89e02136dfc9a485f7b8c8f2cf282a76"
+  },
+  "id": "gXtqmv8vn6WWqFxW",
+  "tags": []
+}
