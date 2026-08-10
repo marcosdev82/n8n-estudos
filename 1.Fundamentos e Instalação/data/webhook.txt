@@ -1,0 +1,14 @@
+﻿query.name
+"name: marcos, age: 40"
+
+M@k$k1@8@2!@#$%
+
+
+marcostavares.dev@hotmail.com
+mikek182@
+
+root@vmi3327907:/var/www/companycontabil# docker compose up -d --build
+
+
+/opt/projects/companycomtabil/docker-compose.yml
+
